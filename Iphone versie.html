@@ -80,29 +80,29 @@
 "use strict";
 
 const WIELEN = [
-  { nr:1, naam:"Wiel 01 – Handeling",  label:"Handeling",  bestand:"BestandWiel01" },
-  { nr:2, naam:"Wiel 02 – Attributen", label:"Attributen", bestand:"BestandWiel02" },
-  { nr:3, naam:"Wiel 03 – Duur",       label:"Duur",       bestand:"BestandWiel03" },
-  { nr:4, naam:"Wiel 04 – Aantal",     label:"Aantal",     bestand:"BestandWiel04" },
-  { nr:5, naam:"Wiel 05",              label:"Wiel 05",    bestand:"BestandWiel05" },
-  { nr:6, naam:"Wiel 06",              label:"Wiel 06",    bestand:"BestandWiel06" },
-  { nr:7, naam:"Wiel 07",              label:"Wiel 07",    bestand:"BestandWiel07" },
-  { nr:8, naam:"Wiel 08",              label:"Wiel 08",    bestand:"BestandWiel08" },
+  { nr:1, naam:"Kleding",	label:"Kleding",	bestand:"BestandWiel01" },
+  { nr:2, naam:"Taken", 	label:"Taken",		bestand:"BestandWiel02" },
+  { nr:3, naam:"Verwennen",	label:"Verwennen",	bestand:"BestandWiel03" },
+  { nr:4, naam:"Masturberen",label:"Masturberen",bestand:"BestandWiel04" },
+  { nr:5, naam:"Aantal",	label:"Aantal",		bestand:"BestandWiel05" },
+  { nr:6, naam:"Duur",		label:"Duur",		bestand:"BestandWiel06" },
+  { nr:7, naam:"Straf",		label:"Straf",		bestand:"BestandWiel07" },
+  { nr:8, naam:"Opbergen",	label:"Opbergen",	bestand:"BestandWiel08" },
 ];
 
 const KLEUREN = ["#ef4444","#f59e0b","#10b981","#3b82f6","#8b5cf6","#ec4899","#14b8a6","#f97316","#06b6d4","#a855f7","#84cc16","#eab308","#f43f5e","#22d3ee"];
 
 const STANDAARD = {
-  1: `Klap in je handen;Wiel02;;\nDans een rondje;Wiel02;;\nMaak een sprongetje;;;\nZing een liedje;Wiel02;;\nDoe alsof je slaapt;;Wiel03;\nSpring op en neer;;Wiel03;\nMaak een grimas;;;`,
-  2: `Met een hoed op;;;Wiel03;\nMet een bal onder je arm;;;Wiel03;\nMet een sjaal om;;Wiel03;\nOp je hoofd staand;;Wiel03;\nZonder attributen;;;`,
-  3: `5 seconden;;;Wiel04;\n10 seconden;;;Wiel04;\n1 minuut;;;Wiel04;\nZo lang je volhoudt;;;;\n3 keer tellen;;;Wiel04;`,
-  4: `1 keer ;;;\n3 keer ;;;\n5 keer ;;;\n10 keer ;;;\nTot je moe bent ;;;`,
-  5: `Optie 1 wiel 05 ;;;\nOptie 2 wiel 05 ;;;\nOptie 3 wiel 05 ;;;\nOptie 4 wiel 05 ;;;\nOptie 5 wiel 05 ;;;`,
-  6: `Optie 1 wiel 06 ;;;\nOptie 2 wiel 06 ;;;\nOptie 3 wiel 06 ;;;\nOptie 4 wiel 06 ;;;\nOptie 5 wiel 06 ;;;`,
-  7: `Optie 1 wiel 07 ;;;\nOptie 2 wiel 07 ;;;\nOptie 3 wiel 07 ;;;\nOptie 4 wiel 07 ;;;\nOptie 5 wiel 07 ;;;`,
-  8: `Optie 1 wiel 08 ;;;\nOptie 2 wiel 08 ;;;\nOptie 3 wiel 08 ;;;\nOptie 4 wiel 08 ;;;\nOptie 5 wiel 08 ;;;`,
+  1: `Harnas & Boeien;Wiel02;\n Harnas & Boeien & Knevel;Wiel02;\n Harnas & Boeien & Knevel & Tepel/Kloten gewichten;Wiel02;\n Harnas & Boeien & Knevel & Ringen;Wiel02;\n Harnas & Boeien & Knevel & Ringen & Tepel gewichten;Wiel02;\n Harnas & Boeien & Knevel & Dildo & Ringen;Wiel02;\n Harnas & Boeien & Dildo & Ringen;Wiel02;\n Harnas & Boeien & Dildo & Humbler;Wiel02;\n Harnas & Boeien & Dildo & Humbler & Parachute;Wiel02;\n Harnas & Boeien & Dildo & Humbler & Parachute & Kloten gewichten;Wiel02;\n Harnas & Boeien & Knevel & Dildo & Humbler & Parachute & Tepel/Kloten gewichten;Wiel02;\n Harnas & Boeien & dildo & Peniskooi;Wiel02;\n Harnas & Boeien & Knevel & Peniskooi;Wiel02;\n Dagelijkse kleding & dildo & Peniskooi;Wiel02;\n Dagelijkse kleding & dildo;Wiel02;\n Dagelijkse kleding & Peniskooi;Wiel02;`,
+  2: `Wassen (sorteren/wassen/drogen/vouwen/strijken en opbergen);\n Hele huis poetsen;\n Koken;\n Verwennen;Wiel03;\n Klaarkomen;Wiel04;\n In de hoek gaan staan tot nadere order;\n Schoenen poetsen;Wiel05\n Opgeborgen;Wiel08;\n Keuken grondig schoonmaken';\n Badkamer & Toilet grondig schoonmaken;\n Slaapkamer grondig schoonmaken;`,
+  3: `Massage naar wens (Voet/Nek/Rug);\n Voetenbank;Wiel06;\n Likken';\n Rust; Wiel08;`,
+  4: `Prostaat melken;\n Aftrekken;\n Prostaat melken & Aftrekken;\n Kunst vagina neuken;\n Massage gun;\n Massage gun & Peniskooi;\n Massage gun & Prostaat melken;`,
+  5: `1;\n2;\n3;\n4;\n5;\n6;\n7;\n8;\n9;\n10;`,
+  6: `1 uur;\n2 uur;\n3 uur;\n4 uur;\n5 uur;`,
+  7: `Pompen (Max 30 min);\nWasknijpers (Max 20 min);\nRingen (max 6 stuks);\nParachute met Gewichten;\nTepelklemmen (Max 20 min);\nTepelzuigers (max 10 min);\nSlaan;Wiel05\nHumbler;\nPeniskooi;\nWasknijpers(Max 20 min) & Mastuberen;Wiel04;\nParachute met Gewichten & Masturberen;Wiel04;\nRingen (max 6 stuks) & Masturberen;Wiel04;'\nEigen tijd vervalt die dag;\nPeniskooi 5 dagen extra;`,
+  8: `In de hoek gaan staan;Wiel06\n Vastbinden in bed;Wiel06\n Zelfbondage in bed;Wiel06;\n Vastbinden op stoel;Wiel06;\n Zelfbondage op stoel;Wiel06;\n Vastbinden staand met dildo;Wiel06;\n Zelfbondage staand met dildo;Wiel06;\n Vastbinden in bed met dildo;Wiel06;\n Zelfbondage in bed met dildo;Wiel06;\n Vastbinden op stoel met dildo;Wiel06;\n Zelfbondage op stoel met dildo;Wiel06;\n Vastbinden staand;Wiel06\;n Zelfbondage staand;Wiel06;\n Vastbinden in bed met Estim tot klaar;\n Vastbinden op stoel met Estim tot klaar;\n Vastbinden staand met Estim tot klaar;\n Vastbinden staand met dildo en Estim tot klaar;\n Vastbinden in bed met dildo en Estim tot klaar;\n Vastbinden op stoel met dildo en Estim tot klaar;`
+  
 };
-
 const state = {
   wielen: {},        // nr -> {opties:[{tekst, vervolg:[nrs]}]}
   huidigWiel: 1,
