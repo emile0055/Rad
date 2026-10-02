@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rad van Fortuin – Handeling, Attributen, Duur, Aantal</title>
+<style>
+  :root { font-family: system-ui, sans-serif; background:#0f172a; color:#e2e8f0; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:16px; }
+  h1 { text-align:center; font-size:1.4rem; margin:0 0 12px; }
+  /* Resultaten bovenin */
+  #resultaten { max-width:900px; margin:0 auto 16px; background:#1e293b; border-radius:12px; padding:12px 16px; }
+  #resultaten .rij { display:flex; gap:10px; padding:6px 0; border-bottom:1px solid #334155; align-items:baseline; }
+  #resultaten .rij:last-child { border-bottom:none; }
+  #resultaten .label { width:110px; font-weight:bold; color:#7dd3fc; flex:none; }
+  #resultaten .waarde { font-size:1.1rem; }
+  #resultaten .leeg { color:#64748b; font-style:italic; }
+  /* Wiel-gebied */
+  #wielzone { display:flex; flex-direction:column; align-items:center; gap:16px; max-width:900px; margin:0 auto; }
+  #wielkaart { background:#1e293b; border-radius:16px; padding:20px; width:100%; max-width:520px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,.4); }
+  #wielTitel { font-size:1.2rem; font-weight:bold; color:#fbbf24; margin-bottom:8px; }
+  #wielStatus { min-height:22px; color:#94a3b8; margin-bottom:8px; font-size:.9rem; }
+  canvas { max-width:100%; }
+  #draaiKnop { margin-top:14px; font-size:1.1rem; padding:10px 34px; border-radius:999px; border:none;
+    background:linear-gradient(90deg,#f59e0b,#ef4444); color:#fff; font-weight:bold; cursor:pointer; }
+  #draaiKnop:disabled { opacity:.4; cursor:not-allowed; }
+  #opnieuwKnop { margin-top:10px; background:none; border:1px solid #475569; color:#94a3b8; border-radius:8px; padding:6px 14px; cursor:pointer; }
+  /* Bestanden / instellingen */
+  details { max-width:900px; margin:20px auto 0; background:#1e293b; border-radius:12px; padding:12px 16px; }
+  summary { cursor:pointer; font-weight:bold; color:#7dd3fc; }
+  .bestandRij { margin-top:14px; }
+  .bestandRij .kop { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .bestandRij b { color:#fbbf24; min-width:150px; }
+  textarea { width:100%; height:110px; margin-top:6px; background:#0f172a; color:#e2e8f0;
+    border:1px solid #334155; border-radius:8px; padding:8px; font-family:monospace; font-size:.85rem; }
+  input[type=file] { color:#94a3b8; font-size:.8rem; }
+  .hint { color:#64748b; font-size:.8rem; margin-top:4px; }
+</style>
+</head>
+<body>
+<h1>🎡 Rad van Fortuin</h1>
+
+<div id="resultaten">
+  <div class="rij"><span class="label">Handeling</span><span class="waarde leeg" id="resW1">–</span></div>
+  <div class="rij"><span class="label">Attributen</span><span class="waarde leeg" id="resW2">–</span></div>
+  <div class="rij"><span class="label">Duur</span><span class="waarde leeg" id="resW3">–</span></div>
+  <div class="rij"><span class="label">Aantal</span><span class="waarde leeg" id="resW4">–</span></div>
+  <div class="rij"><span class="label">Wiel 05</span><span class="waarde leeg" id="resW5">–</span></div>
+  <div class="rij"><span class="label">Wiel 06</span><span class="waarde leeg" id="resW6">–</span></div>
+  <div class="rij"><span class="label">Wiel 07</span><span class="waarde leeg" id="resW7">–</span></div>
+  <div class="rij"><span class="label">Wiel 08</span><span class="waarde leeg" id="resW8">–</span></div>
+</div>
+
+<div id="wielzone">
+  <div id="wielkaart">
+    <div id="wielTitel">Klaar om te draaien</div>
+    <div id="wielStatus">Druk op "Draai!" om te beginnen met Wiel 01 – Handeling</div>
+    <canvas id="wiel" width="420" height="420"></canvas>
+    <br>
+    <button id="draaiKnop">Draai!</button>
+    <button id="herdraaiKnop" style="display:none; margin-top:14px; font-size:1.1rem; padding:10px 34px; border-radius:999px; border:none; background:linear-gradient(90deg,#64748b,#475569); color:#fff; font-weight:bold; cursor:pointer;">↻ Nog eens draaien</button>
+    <br>
+    <button id="opnieuwKnop">↻ Opnieuw beginnen</button>
+  </div>
+</div>
+
+<details>
+  <summary> Bestanden &amp; instellingen (BestandWiel01 – BestandWiel08)</summary>
+  <p class="hint">Eén regel per vak op het wiel. Formaat per regel:
+    <code>Tekstvulling ; Wiel.. ; Wiel.. ; Wiel.. ; Wiel.. ; Wiel.. ; Wiel..</code> — na de tekstvulling kun je tot 6 (of meer) vervolgwielen noemen (Wiel02 t/m Wiel08), gescheiden door puntkomma's. Ze worden om de beurt gedraaid in de volgorde waarin je ze noemt.<br>
+    De velden na "Tekstvulling" geven aan welk volgend wiel nog gedraaid moet worden (leeg laten = geen vervolgactie).<br>
+    Je kunt de tekst hieronder bewerken of een eigen .txt-bestand kiezen per wiel. Elke wijziging wordt pas gebruikt na "Wielen herladen".</p>
+  <div id="bestanden"></div>
+  <button id="herlaadKnop" style="margin:14px 0 6px; padding:8px 20px; border-radius:8px; border:none; background:#0ea5e9; color:#fff; font-weight:bold; cursor:pointer;">⟳ Bestanden opnieuw inlezen</button>
+  <span id="herlaadInfo" class="hint"></span>
+</details>
+
+<script>
+"use strict";
+
+const WIELEN = [
+  { nr:1, naam:"Wiel 01 – Handeling",  label:"Handeling",  bestand:"BestandWiel01" },
+  { nr:2, naam:"Wiel 02 – Attributen", label:"Attributen", bestand:"BestandWiel02" },
+  { nr:3, naam:"Wiel 03 – Duur",       label:"Duur",       bestand:"BestandWiel03" },
+  { nr:4, naam:"Wiel 04 – Aantal",     label:"Aantal",     bestand:"BestandWiel04" },
+  { nr:5, naam:"Wiel 05",              label:"Wiel 05",    bestand:"BestandWiel05" },
+  { nr:6, naam:"Wiel 06",              label:"Wiel 06",    bestand:"BestandWiel06" },
+  { nr:7, naam:"Wiel 07",              label:"Wiel 07",    bestand:"BestandWiel07" },
+  { nr:8, naam:"Wiel 08",              label:"Wiel 08",    bestand:"BestandWiel08" },
+];
+
+const KLEUREN = ["#ef4444","#f59e0b","#10b981","#3b82f6","#8b5cf6","#ec4899","#14b8a6","#f97316","#06b6d4","#a855f7","#84cc16","#eab308","#f43f5e","#22d3ee"];
+
+const STANDAARD = {
+  1: `Klap in je handen;Wiel02;;\nDans een rondje;Wiel02;;\nMaak een sprongetje;;;\nZing een liedje;Wiel02;;\nDoe alsof je slaapt;;Wiel03;\nSpring op en neer;;Wiel03;\nMaak een grimas;;;`,
+  2: `Met een hoed op;;;Wiel03;\nMet een bal onder je arm;;;Wiel03;\nMet een sjaal om;;Wiel03;\nOp je hoofd staand;;Wiel03;\nZonder attributen;;;`,
+  3: `5 seconden;;;Wiel04;\n10 seconden;;;Wiel04;\n1 minuut;;;Wiel04;\nZo lang je volhoudt;;;;\n3 keer tellen;;;Wiel04;`,
+  4: `1 keer ;;;\n3 keer ;;;\n5 keer ;;;\n10 keer ;;;\nTot je moe bent ;;;`,
+  5: `Optie 1 wiel 05 ;;;\nOptie 2 wiel 05 ;;;\nOptie 3 wiel 05 ;;;\nOptie 4 wiel 05 ;;;\nOptie 5 wiel 05 ;;;`,
+  6: `Optie 1 wiel 06 ;;;\nOptie 2 wiel 06 ;;;\nOptie 3 wiel 06 ;;;\nOptie 4 wiel 06 ;;;\nOptie 5 wiel 06 ;;;`,
+  7: `Optie 1 wiel 07 ;;;\nOptie 2 wiel 07 ;;;\nOptie 3 wiel 07 ;;;\nOptie 4 wiel 07 ;;;\nOptie 5 wiel 07 ;;;`,
+  8: `Optie 1 wiel 08 ;;;\nOptie 2 wiel 08 ;;;\nOptie 3 wiel 08 ;;;\nOptie 4 wiel 08 ;;;\nOptie 5 wiel 08 ;;;`,
+};
+
+const state = {
+  wielen: {},        // nr -> {opties:[{tekst, vervolg:[nrs]}]}
+  huidigWiel: 1,
+  draait: false,
+  resultaten: {1:null,2:null,3:null,4:null,5:null,6:null,7:null,8:null},
+  wachtrij: [],   // vervolgwielen die nog gedraaid moeten worden
+  klaar: false,
+};
+
+// ---------- Bestanden-UI ----------
+const bestandenEl = document.getElementById("bestanden");
+WIELEN.forEach(w => {
+  const div = document.createElement("div");
+  div.className = "bestandRij";
+  div.innerHTML =
+    `<div class="kop"><b>${w.bestand}.txt</b> <span>(${w.naam})</span>
+     <input type="file" accept=".txt,text/plain" data-wiel="${w.nr}"></div>
+     <textarea id="txt${w.nr}"></textarea>`;
+  bestandenEl.appendChild(div);
+  div.querySelector("input[type=file]").addEventListener("change", e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = () => { document.getElementById("txt"+w.nr).value = r.result; herlaad(); };
+    r.readAsText(f);
+  });
+  document.getElementById("txt"+w.nr).value = STANDAARD[w.nr];
+  document.getElementById("txt"+w.nr).addEventListener("input", () => slaTekstenOp());
+});
+
+// ---------- Opslaan op het apparaat (localStorage) ----------
+// Zodat het spel volledig offline werkt op iPad/iPhone en pc:
+// bewerkingen blijven bewaard, ook na het sluiten van de browser.
+const OPSLAG_SLEUTEL = "radVanFortuinTeksten";
+function slaTekstenOp() {
+  try {
+    const data = {};
+    WIELEN.forEach(w => { data[w.nr] = document.getElementById("txt"+w.nr).value; });
+    localStorage.setItem(OPSLAG_SLEUTEL, JSON.stringify(data));
+  } catch (e) { /* opslag niet beschikbaar: wijzigingen gelden alleen deze sessie */ }
+}
+function laadTekstenUitOpslag() {
+  try {
+    const raw = localStorage.getItem(OPSLAG_SLEUTEL);
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    let ietsGeladen = false;
+    WIELEN.forEach(w => {
+      if (data[w.nr] !== undefined && data[w.nr] !== "") {
+        document.getElementById("txt"+w.nr).value = data[w.nr];
+        ietsGeladen = true;
+      }
+    });
+    return ietsGeladen;
+  } catch (e) { return false; }
+}
+
+// Meerdere .txt-bestanden tegelijk kiezen; worden op bestandsnaam (BestandWiel01.txt etc.) gekoppeld
+const multiInput = document.createElement("input");
+multiInput.type = "file";
+multiInput.accept = ".txt,text/plain";
+multiInput.multiple = true;
+multiInput.style.display = "none";
+bestandenEl.parentElement.appendChild(multiInput);
+const multiLabel = document.createElement("button");
+multiLabel.textContent = "📂 Meerdere bestanden tegelijk laden…";
+multiLabel.style.cssText = "display:block;margin:10px 0 6px;padding:8px 16px;border-radius:8px;border:1px solid #475569;background:#334155;color:#e2e8f0;cursor:pointer;";
+bestandenEl.parentElement.insertBefore(multiLabel, bestandenEl.nextSibling);
+bestandenEl.parentElement.appendChild(multiInput);
+multiLabel.addEventListener("click", () => multiInput.click());
+multiInput.addEventListener("change", e => {
+  [...e.target.files].forEach(f => {
+    const m = f.name.toLowerCase().match(/bestandwiel0?([1-8])\.txt$/);
+    if (!m) return;
+    const nr = parseInt(m[1],10);
+    const r = new FileReader();
+    r.onload = () => { document.getElementById("txt"+nr).value = r.result; herlaad(); };
+    r.readAsText(f);
+  });
+  e.target.value = "";
+});
+
+function parseBestand(nr, tekst) {
+  const opties = [];
+  tekst.split(/\r?\n/).map(r => r.trim()).filter(r => r.length > 0).forEach(regel => {
+    const delen = regel.split(";").map(d => d.trim());
+    const tekstvulling = delen[0] || "";
+    const vervolg = [];
+    for (let i = 1; i < delen.length; i++) {
+      const v = (delen[i] || "").toLowerCase().replace(/\s/g,"");
+      const m = v.match(/wiel0?([1-8])/);
+      if (m) { const n = parseInt(m[1],10); if (n !== nr && n >= 1 && n <= 8 && !vervolg.includes(n)) vervolg.push(n); }
+    }
+    opties.push({ tekst: tekstvulling, vervolg });
+  });
+  return opties;
+}
+
+function herlaad() {
+  const info = [];
+  WIELEN.forEach(w => {
+    const opties = parseBestand(w.nr, document.getElementById("txt"+w.nr).value);
+    state.wielen[w.nr] = { opties };
+    info.push(`${w.bestand}: ${opties.length} vakken`);
+  });
+  slaTekstenOp();   // bewaar de teksten op het apparaat
+  document.getElementById("herlaadInfo").textContent = "Herladen – " + info.join(" | ");
+  resetSpel();
+  const n = state.wielen[state.huidigWiel].opties.length;
+  setStatus(`Wiel 01 heeft ${n} vakken. Druk op "Draai!"`);
+}
+
+// Leest de .txt-bestanden opnieuw in vanaf schijf (alleen mogelijk via een webserver).
+// Bij een los geopend html-bestand (file://) blokkeert de browser dit; dan verschijnt
+// een melding dat de upload-knop gebruikt moet worden.
+async function leesBestandenVanSchijf() {
+  if (location.protocol === "file:") {
+    document.getElementById("herlaadInfo").textContent =
+      "Bestanden op schijf kunnen niet automatisch gelezen worden omdat je het spel rechtstreeks opent (file://). " +
+      "Gebruik de knop \"Meerdere bestanden tegelijk laden…\" om de .txt-bestanden te kiezen.";
+    herlaad();
+    return false;
+  }
+  const gevonden = [];
+  for (const w of WIELEN) {
+    try {
+      const resp = await fetch(w.bestand + ".txt", { cache: "no-store" });
+      if (!resp.ok) continue;
+      const tekst = await resp.text();
+      if (tekst.trim().length > 0) {
+        document.getElementById("txt"+w.nr).value = tekst;
+        gevonden.push(w.bestand + ".txt");
+      }
+    } catch (e) { /* niet gevonden: tekstvak blijft staan */ }
+  }
+  herlaad();
+  if (gevonden.length > 0) {
+    document.getElementById("herlaadInfo").textContent =
+      "Opnieuw ingelezen van schijf: " + gevonden.join(", ");
+  }
+  return true;
+}
+document.getElementById("herlaadKnop").addEventListener("click", leesBestandenVanSchijf);
+
+// ---------- Resultaten ----------
+function toonResultaten() {
+  WIELEN.forEach(w => {
+    const el = document.getElementById("resW"+w.nr);
+    const v = state.resultaten[w.nr];
+    if (v == null) { el.textContent = "–"; el.className = "waarde leeg"; }
+    else { el.textContent = v; el.className = "waarde"; }
+  });
+}
+
+// ---------- Wiel-tekenen ----------
+const canvas = document.getElementById("wiel");
+const ctx = canvas.getContext("2d");
+let hoek = 0;   // huidige rotatie in radialen
+
+function tekenWiel(nr) {
+  const w = state.wielen[nr];
+  if (!w || w.opties.length === 0) return;
+  const n = w.opties.length;
+  const cx = canvas.width/2, cy = canvas.height/2, R = canvas.width/2 - 14;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.save();
+  ctx.translate(cx,cy);
+  ctx.rotate(hoek);
+  const arc = 2*Math.PI/n;
+  for (let i=0;i<n;i++) {
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.arc(0,0,R,i*arc,(i+1)*arc);
+    ctx.closePath();
+    ctx.fillStyle = KLEUREN[i % KLEUREN.length];
+    ctx.fill();
+    ctx.strokeStyle = "#0f172a";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    // tekst
+    ctx.save();
+    ctx.rotate(i*arc + arc/2);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 13px system-ui";
+    let t = w.opties[i].tekst || "(leeg)";
+    if (t.length > 22) t = t.slice(0,21) + "…";
+    ctx.fillText(t, R-8, 5);
+    ctx.restore();
+  }
+  // naaf
+  ctx.beginPath(); ctx.arc(0,0,18,0,2*Math.PI);
+  ctx.fillStyle = "#fbbf24"; ctx.fill();
+  ctx.strokeStyle="#0f172a"; ctx.lineWidth=3; ctx.stroke();
+  ctx.restore();
+  // wijzer bovenaan
+  ctx.beginPath();
+  ctx.moveTo(cx, 6);
+  ctx.lineTo(cx-13, -12+6);
+  ctx.lineTo(cx+13, -12+6);
+  ctx.closePath();
+  ctx.fillStyle = "#fbbf24";
+  ctx.fill();
+  ctx.strokeStyle = "#0f172a"; ctx.lineWidth = 2; ctx.stroke();
+}
+
+function setTitel(t){ document.getElementById("wielTitel").textContent = t; }
+function setStatus(t){ document.getElementById("wielStatus").textContent = t; }
+
+// ---------- Spelverloop ----------
+const draaiKnop = document.getElementById("draaiKnop");
+const herdraaiKnop = document.getElementById("herdraaiKnop");
+const opnieuwKnop = document.getElementById("opnieuwKnop");
+
+function knopNormaal() {
+  draaiKnop.disabled = false;
+  draaiKnop.textContent = "Draai!";
+  delete draaiKnop.dataset.actie;
+  herdraaiKnop.style.display = "none";
+}
+
+function resetSpel() {
+  state.huidigWiel = 1;
+  state.resultaten = {1:null,2:null,3:null,4:null,5:null,6:null,7:null,8:null};
+  state.wachtrij = [];
+  state.draait = false;
+  state.klaar = false;
+  hoek = 0;
+  toonResultaten();
+  knopNormaal();
+  const w = WIELEN[0];
+  setTitel(w.naam);
+  tekenWiel(1);
+  draaiKnop.disabled = false;
+  draaiKnop.textContent = "Draai!";
+}
+
+function toonWiel(nr, status) {
+  state.huidigWiel = nr;
+  hoek = Math.random()*2*Math.PI;
+  const w = WIELEN[nr-1];
+  setTitel(w.naam);
+  setStatus(status || "Druk op \"Draai!\"");
+  tekenWiel(nr);
+  knopNormaal();
+}
+
+// Bepaal welk vak onder de wijzer (bovenaan, wijst naar -90°) ligt
+function gekozenIndex(nr) {
+  const n = state.wielen[nr].opties.length;
+  // wijzer zit op hoek -PI/2 ; vak i begint bij (hoek + i*arc) in schermcoördinaten
+  let a = ((-Math.PI/2 - hoek) % (2*Math.PI) + 2*Math.PI) % (2*Math.PI);
+  return Math.floor(a / (2*Math.PI/n)) % n;
+}
+
+function draai() {
+  if (state.draait || state.klaar) return;
+  const nr = state.huidigWiel;
+  const n = state.wielen[nr].opties.length;
+  if (n === 0) { setStatus("Dit wiel heeft geen vakken – vul het bestand in."); return; }
+  state.draait = true;
+  draaiKnop.disabled = true;
+  setStatus("Het wiel draait…");
+
+  // Kies eindvak willekeurig, reken de eindrotatie zodat dat vak onder de wijzer stopt
+  const doel = Math.floor(Math.random()*n);
+  const arc = 2*Math.PI/n;
+  // gewenste totale rotatie: hoek_final zodat gekozenIndex == doel
+  // hoek_final ≡ -PI/2 - (doel*arc + kleine offset) (mod 2PI)
+  const offset = arc*(0.2 + Math.random()*0.6);
+  const basis = -Math.PI/2 - doel*arc - offset;
+  const huidigMod = ((hoek % (2*Math.PI))+2*Math.PI)%(2*Math.PI);
+  const basisMod = ((basis % (2*Math.PI))+2*Math.PI)%(2*Math.PI);
+  let delta = basisMod - huidigMod;
+  if (delta <= 0) delta += 2*Math.PI;
+  const totaleRotatie = delta + 2*Math.PI*(5 + Math.floor(Math.random()*3)); // 5-7 extra slagen
+
+  const startHoek = hoek, duur = 4200, t0 = performance.now();
+  function frame(t) {
+    const p = Math.min((t-t0)/duur, 1);
+    const ease = 1 - Math.pow(1-p, 4); // uitrollen
+    hoek = startHoek + totaleRotatie*ease;
+    tekenWiel(nr);
+    if (p < 1) { requestAnimationFrame(frame); }
+    else {
+      hoek = startHoek + totaleRotatie;
+      tekenWiel(nr);
+      klaar(nr, doel);
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+function klaar(nr, index) {
+  const optie = state.wielen[nr].opties[index];
+  state.resultaten[nr] = optie.tekst;
+  toonResultaten();
+  state.draait = false;
+
+  // Bepaal vervolgwielen uit de velden achter "Tekstvulling"
+  const vervolg = [];
+  optie.vervolg.forEach(n => {
+    if (state.resultaten[n] == null && state.wielen[n].opties.length > 0) vervolg.push(n);
+  });
+
+  // Zet alle vervolgwielen in de wachtrij (in de volgorde waarin ze genoemd zijn)
+  vervolg.forEach(n => { if (!state.wachtrij.includes(n)) state.wachtrij.push(n); });
+
+  // Keuzemoment: akkoord gaan of hetzelfde wiel nog eens draaien
+  setStatus(`Uitkomst: "${optie.tekst}" – ben je het hier mee eens?`);
+  draaiKnop.disabled = false;
+  draaiKnop.textContent = "✓ Akkoord";
+  draaiKnop.dataset.actie = "akkoord";
+  herdraaiKnop.style.display = "inline-block";
+}
+
+function akkoord() {
+  knopNormaal();
+  if (state.wachtrij.length > 0) {
+    const volgende = state.wachtrij.shift();
+    const resterend = state.wachtrij.length > 0
+      ? "Nog te draaien: " + state.wachtrij.map(n => WIELEN[n-1].naam).join(", ")
+      : "Druk op \"Draai!\"";
+    toonWiel(volgende, resterend);
+  } else {
+    // klaar
+    state.klaar = true;
+    setTitel("🎉 Resultaat compleet");
+    const nogOpen = WIELEN.filter(w => state.resultaten[w.nr] == null && state.wielen[w.nr].opties.length > 0);
+    if (nogOpen.length > 0) {
+      setStatus("Voltooid volgens de bestanden. Nog niet gedraaid: " +
+        nogOpen.map(w=>w.label).join(", ") + ". Druk op \"Opnieuw beginnen\" of pas de bestanden aan.");
+    } else {
+      setStatus("Alle wielen die nodig waren, zijn gedraaid!");
+    }
+  }
+}
+
+function herdraai() {
+  const nr = state.huidigWiel;
+  state.resultaten[nr] = null;
+  toonResultaten();
+  knopNormaal();
+  setStatus("Geen probleem – draai dit wiel gewoon nog een keer!");
+}
+
+draaiKnop.addEventListener("click", () => {
+  if (draaiKnop.dataset.actie === "akkoord") akkoord();
+  else draai();
+});
+herdraaiKnop.addEventListener("click", herdraai);
+opnieuwKnop.addEventListener("click", resetSpel);
+
+// ---------- Automatisch BestandWielNN.txt uit dezelfde map laden ----------
+// Werkt als de pagina via een (lokale) webserver wordt geopend, bijv.:
+//   python -m http.server   of   npx serve
+// Bij een losse file://-pagina (standaard op iPad/iPhone) blokkeert de
+// browser dit; de teksten uit localStorage worden dan automatisch gebruikt.
+async function laadBestandenUitMap() {
+  if (location.protocol === "file:") {
+    document.getElementById("herlaadInfo").textContent =
+      "Offline modus: de teksten uit dit bestand worden gebruikt en blijven op dit apparaat bewaard. " +
+      "Pas ze aan onder \"Bestanden & instellingen\" – wijzigingen worden automatisch opgeslagen.";
+    return;
+  }
+  const gevonden = [];
+  for (const w of WIELEN) {
+    try {
+      const resp = await fetch(w.bestand + ".txt", { cache: "no-store" });
+      if (!resp.ok) continue;
+      const tekst = await resp.text();
+      if (tekst.trim().length > 0) {
+        document.getElementById("txt"+w.nr).value = tekst;
+        gevonden.push(w.bestand + ".txt");
+      }
+    } catch (e) { /* bestand niet bereikbaar: opgeslagen/standaardtekst blijft staan */ }
+  }
+  herlaad();
+  if (gevonden.length > 0) {
+    document.getElementById("herlaadInfo").textContent =
+      "Automatisch geladen uit de map: " + gevonden.join(", ");
+  }
+}
+
+// Start
+const uitOpslag = laadTekstenUitOpslag();
+herlaad();
+if (uitOpslag && location.protocol === "file:") {
+  document.getElementById("herlaadInfo").textContent =
+    "Offline modus: jouw opgeslagen teksten zijn geladen en blijven op dit apparaat bewaard.";
+}
+laadBestandenUitMap();
+</script>
+</body>
+</html>
